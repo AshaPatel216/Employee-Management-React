@@ -1,4 +1,3 @@
-// EmployeeList.js
 import { useEffect, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { deleteEmployee } from "../../redux/reducer/employeeReducer";
@@ -15,28 +14,63 @@ import {
   Typography,
   Paper,
   IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { employee } from "../../models/emplyee";
 
 export const ListEmployee = () => {
-  function deleteEmployeeFun(id: number) {
-    if (window.confirm("Are you sure you want to delete employee?")) {
-      store.dispatch(deleteEmployee(id));
-    }
-  }
+  const [employeeData, setEmployeeData] = useState<
+    { id: number; fullName: string; birthDate: string | Date; department: string; experience: number }[]
+  >([]);
 
-  const [employeeData, setEmployeeData] = useState([
-    { id: 0, fullName: "", birthDate: "", department: "", experience: 0 },
-  ]);
+  const [open, setOpen] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+
+  const handleClickOpen = (id: number) => {
+    setSelectedEmployeeId(id);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedEmployeeId !== null) {
+      store.dispatch(deleteEmployee(selectedEmployeeId));
+      setOpen(false);
+    }
+  };
 
   useEffect(() => {
-    setEmployeeData(store.getState().persistReducers.employeeSlice);
-    store.subscribe(() => {
-      setEmployeeData(store.getState().persistReducers.employeeSlice);
+    const formatBirthDate = (birthDate: string | Date) => {
+      if (birthDate instanceof Date) {
+        return birthDate.toISOString().split("T")[0];
+      }
+      return birthDate;
+    };
+
+    const employeeList = store.getState().persistReducers.employeeSlice.map((employee: employee) => ({
+      ...employee,
+      birthDate: formatBirthDate(employee.birthDate),
+    }));
+    setEmployeeData(employeeList);
+
+    const unsubscribe = store.subscribe(() => {
+      const updatedEmployeeList = store.getState().persistReducers.employeeSlice.map((employee: employee) => ({
+        ...employee,
+        birthDate: formatBirthDate(employee.birthDate),
+      }));
+      setEmployeeData(updatedEmployeeList);
     });
-  }, [employeeData]);
+    return () => unsubscribe();
+  }, []);
 
   return (
     <Box sx={{ padding: 2 }}>
@@ -75,7 +109,6 @@ export const ListEmployee = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {/* If employee data not found */}
             {!employeeData.length && (
               <TableRow>
                 <TableCell colSpan={6} sx={{ textAlign: "center" }}>
@@ -85,12 +118,11 @@ export const ListEmployee = () => {
                 </TableCell>
               </TableRow>
             )}
-            {/* Employee list */}
-            {employeeData.map((employee: employee) => (
+            {employeeData.map((employee) => (
               <TableRow key={employee.id}>
                 <TableCell>{employee.id}</TableCell>
                 <TableCell>{employee.fullName}</TableCell>
-                <TableCell>{employee.birthDate}</TableCell>
+                <TableCell>{typeof employee.birthDate === 'string' ? employee.birthDate : employee.birthDate.toISOString().split("T")[0]}</TableCell>
                 <TableCell>{employee.department}</TableCell>
                 <TableCell>{employee.experience}</TableCell>
                 <TableCell sx={{ textAlign: "right" }}>
@@ -104,7 +136,7 @@ export const ListEmployee = () => {
                   </IconButton>
                   <IconButton
                     color="secondary"
-                    onClick={() => deleteEmployeeFun(employee.id)}
+                    onClick={() => handleClickOpen(employee.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -114,6 +146,28 @@ export const ListEmployee = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Delete Employee"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this employee?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="secondary" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
