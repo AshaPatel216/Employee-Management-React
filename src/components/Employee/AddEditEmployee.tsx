@@ -148,7 +148,6 @@ export default function EmployeeAdd() {
                 message: "Only numbers are allowed.",
               },
             }}
-            defaultValue=""
             render={({ field }) => (
               <TextField
                 {...field}

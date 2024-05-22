@@ -6,7 +6,6 @@ import store from "../../redux/store/store";
 import {
   Box,
   Button,
-  Link,
   Table,
   TableBody,
   TableCell,
@@ -17,9 +16,9 @@ import {
   Paper,
   IconButton,
 } from "@mui/material";
-import { Employee } from "../../models/emplyee";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { employee } from "../../models/emplyee";
 
 export const ListEmployee = () => {
   function deleteEmployeeFun(id: number) {
@@ -87,7 +86,7 @@ export const ListEmployee = () => {
               </TableRow>
             )}
             {/* Employee list */}
-            {employeeData.map((employee: Employee) => (
+            {employeeData.map((employee: employee) => (
               <TableRow key={employee.id}>
                 <TableCell>{employee.id}</TableCell>
                 <TableCell>{employee.fullName}</TableCell>
