@@ -1,5 +1,4 @@
 import "./App.css";
-import { Header } from "./components/Header";
 import { Container } from "@mui/material";
 import { ListEmployee } from "./components/Employee/ListEmployee";
 import { Route, Routes } from "react-router-dom";
@@ -12,7 +11,6 @@ const App = () => {
     <ThemeProvider theme={customTheme}>
       {/* custom theme provider */}
       <div className="App">
-      <Header />
       <Container className="content" sx={{p:5}}>
         {/* Routing */}
         <Routes>

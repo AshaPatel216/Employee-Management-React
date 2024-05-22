@@ -2,28 +2,28 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import store from "../../redux/store/store";
-import { Employee } from "../../models/emplyee";
 import { addEmployee, editEmployee } from "../../redux/reducer/employeeReducer";
 import { TextField, Button, Box, Typography, Container } from "@mui/material";
+import { employee } from "../../models/emplyee";
 
 type FormField = {
   id: number;
   fullName: string;
-  birthDate: Date;
+  birthDate: Date | string;
   department: string;
   experience: number;
 };
 
 export default function EmployeeAdd() {
   const {
-    control,
     handleSubmit,
+    control,
     setValue,
     formState: { errors },
   } = useForm<FormField>();
   const navigate = useNavigate();
   const { id } = useParams();
-  const [employee, setEmployee] = useState<Employee>({
+  const [employee, setEmployee] = useState<employee>({
     id: 0,
     fullName: "",
     birthDate: new Date(),
@@ -36,18 +36,25 @@ export default function EmployeeAdd() {
       const employeeData = store
         .getState()
         .persistReducers.employeeSlice.find(
-          (employee: Employee) => employee.id === Number(id)
+          (employee: employee) => employee.id === Number(id)
         );
-      setEmployee(employeeData);
+      if (employeeData) {
+        setEmployee({
+          ...employeeData,
+          birthDate: new Date(employeeData.birthDate), // Convert birthDate to Date object
+        });
+      }
     }
   }, [id]);
 
   useEffect(() => {
-    setValue("fullName", employee.fullName);
-    setValue("birthDate", employee.birthDate);
-    setValue("department", employee.department);
-    setValue("experience", employee.experience);
-  }, [employee, setValue]);
+    if (id && employee) {
+      setValue("fullName", employee.fullName);
+      setValue("birthDate", employee.birthDate.toISOString().split("T")[0]); // Format date to YYYY-MM-DD
+      setValue("department", employee.department);
+      setValue("experience", employee.experience);
+    }
+  }, [employee, id, setValue]);
 
   const onSubmit = (data: FormField) => {
     data.id = employee.id;
@@ -59,7 +66,7 @@ export default function EmployeeAdd() {
     <Container maxWidth="sm">
       <Box>
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Typography variant="h4" component="h1" gutterBottom>
+          <Typography variant="h5" gutterBottom>
             {id ? "Edit" : "Add"} Employee
           </Typography>
           <Controller
@@ -72,6 +79,7 @@ export default function EmployeeAdd() {
                 message: "Only letters (A-Z) are allowed.",
               },
             }}
+            defaultValue=""
             render={({ field }) => (
               <TextField
                 {...field}
@@ -92,6 +100,7 @@ export default function EmployeeAdd() {
             name="birthDate"
             control={control}
             rules={{ required: "Birth date is required." }}
+            defaultValue=""
             render={({ field }) => (
               <TextField
                 {...field}
@@ -139,6 +148,7 @@ export default function EmployeeAdd() {
                 message: "Only numbers are allowed.",
               },
             }}
+            defaultValue=""
             render={({ field }) => (
               <TextField
                 {...field}
@@ -160,7 +170,7 @@ export default function EmployeeAdd() {
               type="button"
               variant="outlined"
               fullWidth
-              sx={{ mt: 2, mr: 2, px: 2}}
+              sx={{ mt: 2, mr: 2, px: 2 }}
               onClick={() => navigate("/")}
             >
               Cancel
@@ -170,7 +180,7 @@ export default function EmployeeAdd() {
               variant="contained"
               color="primary"
               fullWidth
-              sx={{ mt: 2, px:4}}
+              sx={{ mt: 2, px: 4 }}
             >
               {id ? "Edit" : "Add"}
             </Button>

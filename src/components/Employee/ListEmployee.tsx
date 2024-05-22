@@ -76,11 +76,17 @@ export const ListEmployee = () => {
             </TableRow>
           </TableHead>
           <TableBody>
+            {/* If employee data not found */}
             {!employeeData.length && (
               <TableRow>
-                <TableCell colSpan={6}>No Employee</TableCell>
+                <TableCell colSpan={6} sx={{ textAlign: "center" }}>
+                  <Typography variant="subtitle1" gutterBottom>
+                    Employee data not found
+                  </Typography>
+                </TableCell>
               </TableRow>
             )}
+            {/* Employee list */}
             {employeeData.map((employee: Employee) => (
               <TableRow key={employee.id}>
                 <TableCell>{employee.id}</TableCell>
@@ -88,7 +94,7 @@ export const ListEmployee = () => {
                 <TableCell>{employee.birthDate}</TableCell>
                 <TableCell>{employee.department}</TableCell>
                 <TableCell>{employee.experience}</TableCell>
-                <TableCell sx={{textAlign: "right"}}>
+                <TableCell sx={{ textAlign: "right" }}>
                   <IconButton
                     component={RouterLink}
                     to={`edit/${employee.id}`}
