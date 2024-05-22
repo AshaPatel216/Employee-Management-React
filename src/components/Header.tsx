@@ -8,13 +8,10 @@ export const Header = () => {
   return (
     <AppBar position="fixed">
       
-      <Toolbar>
-       <Container>
-       <Typography variant="h6" component="div">
+      <Toolbar sx={{color:"inherit"}}>
+      <Typography variant="h2">
           Employee Management
         </Typography>
-       </Container>
-       
       </Toolbar>
       
      
