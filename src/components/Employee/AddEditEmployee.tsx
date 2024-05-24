@@ -202,7 +202,7 @@ export default function AddEditEmployee() {
               fullWidth
               sx={{ mt: 2, px: 4 }}
             >
-              {id ? "Edit" : "Add"}
+              {id ? "Update" : "Add"}
             </Button>
           </Box>
         </form>
