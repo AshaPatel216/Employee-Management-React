@@ -4,16 +4,16 @@ import { persistReducer } from "redux-persist";
 import { combineReducers } from "@reduxjs/toolkit";
 import employeeSlice from "./../reducer/employeeReducer";
  
+// redux persist for state management even after page reload. Ref: https://www.npmjs.com/package/redux-persist
 const persistConfig = {
   key: "root",
-  version: 1,
   storage,
-  blacklist: ['register']
 };
 
 const reducer = combineReducers({
   employeeSlice,
 });
+
 const persistReducers = persistReducer(persistConfig, reducer);
 
 const store = configureStore({

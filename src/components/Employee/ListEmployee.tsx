@@ -24,23 +24,47 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { employee } from "../../models/emplyee";
 
+// list employee component
 export const ListEmployee = () => {
   const [employeeData, setEmployeeData] = useState<
-    { id: number; fullName: string; birthDate: string | Date; department: string; experience: number }[]
+    {
+      id: number;
+      fullName: string;
+      birthDate: string | Date;
+      department: string;
+      experience: number;
+    }[]
   >([]);
 
-  const [open, setOpen] = useState(false);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+  const [open, setOpen] = useState(false); // state to open or close dialog
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null
+  );
+  const [selectedEmployeeName, setSelectedEmployeeName] = useState<string>("");
 
+  /**
+   * Open delete dialog
+   * @param id Id of the employee to delete
+   */
   const handleClickOpen = (id: number) => {
     setSelectedEmployeeId(id);
+    const selectedEmployeeDetails = employeeData.find((emp) => emp.id === id);
+    if (selectedEmployeeDetails) {
+      setSelectedEmployeeName(selectedEmployeeDetails?.fullName);
+    }
     setOpen(true);
   };
 
+  /**
+   * Cloce delete dialog
+   */
   const handleClose = () => {
     setOpen(false);
   };
 
+  /**
+   * Delete confimation
+   */
   const handleConfirmDelete = () => {
     if (selectedEmployeeId !== null) {
       store.dispatch(deleteEmployee(selectedEmployeeId));
@@ -48,6 +72,9 @@ export const ListEmployee = () => {
     }
   };
 
+  /**
+   * Set employee data, format birthdate to set it in the form field
+   */
   useEffect(() => {
     const formatBirthDate = (birthDate: string | Date) => {
       if (birthDate instanceof Date) {
@@ -56,22 +83,27 @@ export const ListEmployee = () => {
       return birthDate;
     };
 
-    const employeeList = store.getState().persistReducers.employeeSlice.map((employee: employee) => ({
-      ...employee,
-      birthDate: formatBirthDate(employee.birthDate),
-    }));
-    setEmployeeData(employeeList);
-
-    const unsubscribe = store.subscribe(() => {
-      const updatedEmployeeList = store.getState().persistReducers.employeeSlice.map((employee: employee) => ({
+    const employeeList = store
+      .getState()
+      .persistReducers.employeeSlice.map((employee: employee) => ({
         ...employee,
         birthDate: formatBirthDate(employee.birthDate),
       }));
+    setEmployeeData(employeeList);
+
+    const unsubscribe = store.subscribe(() => {
+      const updatedEmployeeList = store
+        .getState()
+        .persistReducers.employeeSlice.map((employee: employee) => ({
+          ...employee,
+          birthDate: formatBirthDate(employee.birthDate),
+        }));
       setEmployeeData(updatedEmployeeList);
     });
     return () => unsubscribe();
   }, []);
 
+  // List employee
   return (
     <Box sx={{ padding: 2 }}>
       <Box
@@ -81,10 +113,12 @@ export const ListEmployee = () => {
           justifyContent: "space-between",
         }}
       >
+        {/* Heading */}
         <Typography variant="h5" gutterBottom>
           Employee List
         </Typography>
 
+        {/* Button */}
         <Button
           variant="contained"
           color="primary"
@@ -96,8 +130,10 @@ export const ListEmployee = () => {
         </Button>
       </Box>
 
+      {/* Employee list table */}
       <TableContainer component={Paper}>
         <Table>
+          {/* Table header */}
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
@@ -108,6 +144,7 @@ export const ListEmployee = () => {
               <TableCell width={100}></TableCell>
             </TableRow>
           </TableHead>
+          {/* Table body */}
           <TableBody>
             {!employeeData.length && (
               <TableRow>
@@ -122,7 +159,11 @@ export const ListEmployee = () => {
               <TableRow key={employee.id}>
                 <TableCell>{employee.id}</TableCell>
                 <TableCell>{employee.fullName}</TableCell>
-                <TableCell>{typeof employee.birthDate === 'string' ? employee.birthDate : employee.birthDate.toISOString().split("T")[0]}</TableCell>
+                <TableCell>
+                  {typeof employee.birthDate === "string"
+                    ? employee.birthDate
+                    : employee.birthDate.toISOString().split("T")[0]}
+                </TableCell>
                 <TableCell>{employee.department}</TableCell>
                 <TableCell>{employee.experience}</TableCell>
                 <TableCell sx={{ textAlign: "right" }}>
@@ -147,23 +188,42 @@ export const ListEmployee = () => {
         </Table>
       </TableContainer>
 
+      {/* Delete confirmation dialog */}
       <Dialog
         open={open}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Delete Employee"}</DialogTitle>
+        {/* Title */}
+        <DialogTitle id="alert-dialog-title">
+          <Typography variant="h5">Delete Employee</Typography>
+        </DialogTitle>
+        {/* Content */}
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete this employee?
+            <Typography variant="body1">
+              Are you sure you want to delete the employee{" "}
+              <strong>{selectedEmployeeName}</strong>?
+            </Typography>
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
+        {/* Actions */}
+        <DialogActions sx={{ pr: 3, pb: 3 }}>
+          <Button
+            onClick={handleClose}
+            color="primary"
+            variant="outlined"
+            sx={{ mr: 2 }}
+          >
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} color="secondary" autoFocus>
+          <Button
+            onClick={handleConfirmDelete}
+            variant="contained"
+            color="primary"
+            autoFocus
+          >
             Delete
           </Button>
         </DialogActions>

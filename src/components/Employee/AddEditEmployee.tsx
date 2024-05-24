@@ -6,7 +6,7 @@ import { addEmployee, editEmployee } from "../../redux/reducer/employeeReducer";
 import { TextField, Button, Box, Typography, Container } from "@mui/material";
 import { employee } from "../../models/emplyee";
 
-type FormField = {
+type EmployeeField = {
   id: number;
   fullName: string;
   birthDate: Date | string;
@@ -14,15 +14,15 @@ type FormField = {
   experience: number;
 };
 
-export default function EmployeeAdd() {
+// add/edit employee
+export default function AddEditEmployee() {
   const {
     handleSubmit,
     control,
     setValue,
     formState: { errors },
-  } = useForm<FormField>();
+  } = useForm<EmployeeField>();
   const navigate = useNavigate();
-  const { id } = useParams();
   const [employee, setEmployee] = useState<employee>({
     id: 0,
     fullName: "",
@@ -31,13 +31,17 @@ export default function EmployeeAdd() {
     experience: 0,
   });
 
+  const { id } = useParams(); // get params from current URL
+
   useEffect(() => {
     if (id) {
+      // get employee data
       const employeeData = store
         .getState()
         .persistReducers.employeeSlice.find(
           (employee: employee) => employee.id === Number(id)
         );
+      // set employee data
       if (employeeData) {
         setEmployee({
           ...employeeData,
@@ -47,6 +51,7 @@ export default function EmployeeAdd() {
     }
   }, [id]);
 
+  // set default values in form fields in case of edit scenario
   useEffect(() => {
     if (id && employee) {
       setValue("fullName", employee.fullName);
@@ -56,9 +61,15 @@ export default function EmployeeAdd() {
     }
   }, [employee, id, setValue]);
 
-  const onSubmit = (data: FormField) => {
-    data.id = employee.id;
-    store.dispatch(!id ? addEmployee(data) : editEmployee(data));
+  /**
+   * Submit add/edit employee data
+   * @param data Employee data
+   */
+  const onSubmit = (employeeFieldsData: EmployeeField) => {
+    employeeFieldsData.id = employee.id;
+    store.dispatch(
+      !id ? addEmployee(employeeFieldsData) : editEmployee(employeeFieldsData)
+    );
     navigate("/");
   };
 
@@ -69,6 +80,8 @@ export default function EmployeeAdd() {
           <Typography variant="h5" gutterBottom>
             {id ? "Edit" : "Add"} Employee
           </Typography>
+
+          {/* Full name */}
           <Controller
             name="fullName"
             control={control}
@@ -96,6 +109,8 @@ export default function EmployeeAdd() {
               />
             )}
           />
+
+          {/* Birth date */}
           <Controller
             name="birthDate"
             control={control}
@@ -118,6 +133,8 @@ export default function EmployeeAdd() {
               />
             )}
           />
+
+          {/* Department */}
           <Controller
             name="department"
             control={control}
@@ -138,6 +155,8 @@ export default function EmployeeAdd() {
               />
             )}
           />
+
+          {/* Experience */}
           <Controller
             name="experience"
             control={control}
@@ -164,6 +183,8 @@ export default function EmployeeAdd() {
               />
             )}
           />
+
+          {/* Actions */}
           <Box sx={{ textAlign: "right" }}>
             <Button
               type="button"

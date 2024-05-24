@@ -7,17 +7,20 @@ const employeeSlice = createSlice({
   name: "employee",
   initialState,
   reducers: {
+    // add employee
     addEmployee: (state, action) => {
       const lastEmployee = state[state.length - 1];
-      action.payload.id = lastEmployee ? lastEmployee.id + 1 : 1;  // Correct way to assign a new ID
+      action.payload.id = lastEmployee ? lastEmployee.id + 1 : 1;  // Assign a new ID
       state.push(action.payload);
     },
+    // edit employee
     editEmployee: (state, action) => {
       const index = state.findIndex((employee) => employee.id === action.payload.id);
       if (index !== -1) {
         state[index] = action.payload;
       }
     },
+    //delete employee
     deleteEmployee: (state, action) => {
       const index = state.findIndex((employee) => employee.id === action.payload);
       if (index !== -1) {
